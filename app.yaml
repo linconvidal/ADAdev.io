@@ -6,7 +6,7 @@ services:
   github:
     repo: SLFMR1/ADAdev.io
     branch: main
-  run_command:   run_command: npm run build && npx serve -s dist -l $PORT
+  run_command: npx serve -s dist -l $PORT
   build_command: npm install && npm run build
   environment_slug: node-js
   instance_count: 1
