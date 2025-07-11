@@ -1,0 +1,26 @@
+name: adadev.io
+region: nyc
+services:
+- name: adadev-frontend
+  source_dir: /
+  github:
+    repo: SLFMR1/ADAdev.io
+    branch: main
+  run_command: npx serve -s dist -l $PORT
+  build_command: npm install && npm run build
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  routes:
+  - path: /
+  envs:
+  - key: VITE_OPENAI_API_KEY
+    scope: RUN_AND_BUILD_TIME
+    value: ${VITE_OPENAI_API_KEY}
+    type: SECRET
+  - key: NODE_ENV
+    value: production
+    scope: RUN_TIME
+  - key: PORT
+    value: "3000"
+    scope: RUN_TIME 

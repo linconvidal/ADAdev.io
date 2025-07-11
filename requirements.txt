@@ -1,0 +1,11 @@
+# Python dependencies for ADAdev deployment
+# Note: This is a React frontend application, but some deployment tools may require Python
+
+# Web server for static files (if needed)
+gunicorn==21.2.0
+
+# Environment variable handling
+python-dotenv==1.0.0
+
+# HTTP server for static files
+http-server==14.1.1 
