@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "npx serve -s dist -l $PORT",
+    "postinstall": "npm run build",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },
   "dependencies": {
