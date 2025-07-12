@@ -2,21 +2,28 @@ const CACHE_NAME = 'github-updates-v1'
 const CACHE_DURATION = 15 * 60 * 1000 // 15 minutes
 const MAX_CACHE_SIZE = 50
 
+// Production logger - only log in development
+const log = (...args) => {
+  if (typeof self !== 'undefined' && self.location && self.location.hostname === 'localhost') {
+    console.log(...args)
+  }
+}
+
 // Install event - set up cache
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing...')
+  log('Service Worker installing...')
   self.skipWaiting()
 })
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating...')
+  log('Service Worker activating...')
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName)
+            log('Deleting old cache:', cacheName)
             return caches.delete(cacheName)
           }
         })
@@ -41,10 +48,10 @@ self.addEventListener('fetch', (event) => {
           const now = new Date()
           
           if (now - cacheTime < CACHE_DURATION) {
-            console.log('Serving from cache:', event.request.url)
+            log('Serving from cache:', event.request.url)
             return response
           } else {
-            console.log('Cache expired, fetching fresh data:', event.request.url)
+            log('Cache expired, fetching fresh data:', event.request.url)
             cache.delete(event.request)
           }
         }

@@ -6,7 +6,7 @@ services:
   github:
     repo: SLFMR1/ADAdev.io
     branch: main
-  run_command: npx serve -s dist -l $PORT
+  run_command: node server.js
   build_command: npm ci && npm run build
   environment_slug: node-js
   instance_count: 1
@@ -17,6 +17,10 @@ services:
   - key: VITE_OPENAI_API_KEY
     scope: RUN_AND_BUILD_TIME
     value: ${VITE_OPENAI_API_KEY}
+    type: SECRET
+  - key: GITHUB_TOKEN
+    scope: RUN_TIME
+    value: ${GITHUB_TOKEN}
     type: SECRET
   - key: NODE_ENV
     value: production

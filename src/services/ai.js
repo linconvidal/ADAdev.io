@@ -1,5 +1,6 @@
 import OpenAI from 'openai'
 import { cardanoResources } from '../data/resources'
+import { validateContent } from './rateLimiter'
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -74,6 +75,12 @@ const filterRelevantResources = (allResources, userInput) => {
  */
 export const analyzeUserRequirements = async (userInput) => {
   try {
+    // Validate content for spam
+    const contentValidation = validateContent(userInput)
+    if (!contentValidation.isValid) {
+      throw new Error(`Content validation failed: ${contentValidation.issues.join(', ')}`)
+    }
+
     // Flatten all resources for analysis
     const allResources = Object.entries(cardanoResources).flatMap(([category, resources]) =>
       resources.map(resource => ({ ...resource, category }))
@@ -157,7 +164,7 @@ Keep the response concise and focus on the most relevant tools.`
     }
 
   } catch (error) {
-    console.error('AI analysis error:', error)
+    logger.error('AI analysis error:', error)
     
     // Provide a fallback response if AI fails
     if (error.message.includes('context length') || error.message.includes('tokens')) {

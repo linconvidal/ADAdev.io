@@ -1,4 +1,4 @@
-# Multi-stage build for React application
+# Multi-stage build for React application with Express server
 FROM node:18-alpine AS builder
 
 # Set working directory
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -17,16 +17,23 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM node:18-alpine
 
-# Copy built application from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Set working directory
+WORKDIR /app
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy package files
+COPY package*.json ./
 
-# Expose port 80
-EXPOSE 80
+# Install only production dependencies
+RUN npm ci --only=production
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"] 
+# Copy built application and server files from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server.js ./
+
+# Expose port 3000
+EXPOSE 3000
+
+# Start the Express server
+CMD ["npm", "start"] 

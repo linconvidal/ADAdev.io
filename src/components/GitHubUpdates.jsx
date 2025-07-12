@@ -29,7 +29,7 @@ const GitHubUpdates = ({ resource }) => {
         setLoading(true)
         
         // Check cache first
-        const cachedData = getCachedGitHubData(resource)
+        const cachedData = await getCachedGitHubData(resource)
         if (cachedData) {
           setGithubData(cachedData)
           
@@ -190,8 +190,9 @@ const GitHubUpdates = ({ resource }) => {
                   >
                     {commit.message.split('\n')[0]}
                   </a>
-                  <span className="text-gray-500 text-xs font-mono ml-2">
-                    {commit.shortSha}
+                  <span className="text-gray-500 text-xs flex items-center ml-2">
+                    <Calendar size={8} className="mr-1" />
+                    {formatRelativeTime(commit.date)}
                   </span>
                 </div>
               ))

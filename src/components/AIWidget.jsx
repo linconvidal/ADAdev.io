@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Copy, Check, X, FileText, Sparkles } from 'lucide-react'
 import { generateMarkdownPlan } from '../services/ai'
+import logger from '../utils/logger'
 
 const AIWidget = ({ aiResults, onClose }) => {
   const [copied, setCopied] = useState(false)
@@ -13,7 +14,7 @@ const AIWidget = ({ aiResults, onClose }) => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
-      console.error('Failed to copy plan:', error)
+      logger.error('Failed to copy plan:', error)
     }
   }
 

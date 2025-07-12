@@ -7,7 +7,40 @@ const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [progress, setProgress] = useState(0)
+  const [lastSubmissionTime, setLastSubmissionTime] = useState(0)
+  const [submissionCount, setSubmissionCount] = useState(0)
+  const [showChallenge, setShowChallenge] = useState(false)
+  const [challengeAnswer, setChallengeAnswer] = useState('')
+  const [suspiciousActivity, setSuspiciousActivity] = useState(0)
   const progressInterval = useRef(null)
+
+  // Rate limiting: max 5 submissions per minute
+  const RATE_LIMIT_SUBMISSIONS = 5
+  const RATE_LIMIT_WINDOW = 60000 // 1 minute in ms
+  const MIN_SUBMISSION_INTERVAL = 2000 // 2 seconds between submissions
+
+  const checkRateLimit = () => {
+    const now = Date.now()
+    const timeSinceLastSubmission = now - lastSubmissionTime
+    
+    // Check minimum interval between submissions
+    if (timeSinceLastSubmission < MIN_SUBMISSION_INTERVAL) {
+      const remainingTime = Math.ceil((MIN_SUBMISSION_INTERVAL - timeSinceLastSubmission) / 1000)
+      throw new Error(`Please wait ${remainingTime} seconds before submitting again`)
+    }
+    
+    // Check submission count in time window
+    if (submissionCount >= RATE_LIMIT_SUBMISSIONS) {
+      const timeWindowStart = now - RATE_LIMIT_WINDOW
+      if (lastSubmissionTime > timeWindowStart) {
+        const remainingTime = Math.ceil((RATE_LIMIT_WINDOW - (now - timeWindowStart)) / 1000)
+        throw new Error(`Rate limit exceeded. Please wait ${remainingTime} seconds`)
+      } else {
+        // Reset counter if window has passed
+        setSubmissionCount(0)
+      }
+    }
+  }
 
   useEffect(() => {
     if (isAnalyzing) {
@@ -44,6 +77,57 @@ const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
     }
   }, [isAnalyzing])
 
+  const generateChallenge = () => {
+    const challenges = [
+      { question: 'What is 2 + 3?', answer: '5' },
+      { question: 'What color is the sky?', answer: 'blue' },
+      { question: 'How many days in a week?', answer: '7' },
+      { question: 'What is the opposite of hot?', answer: 'cold' },
+      { question: 'What do you call a baby dog?', answer: 'puppy' }
+    ]
+    return challenges[Math.floor(Math.random() * challenges.length)]
+  }
+
+  const validateInput = (input) => {
+    const trimmed = input.trim()
+    
+    // Check minimum length
+    if (trimmed.length < 10) {
+      throw new Error('Please provide a more detailed description (at least 10 characters)')
+    }
+    
+    // Check maximum length
+    if (trimmed.length > 1000) {
+      throw new Error('Description too long. Please keep it under 1000 characters')
+    }
+    
+    // Check for repetitive patterns (spam detection)
+    const words = trimmed.toLowerCase().split(/\s+/)
+    const uniqueWords = new Set(words)
+    const repetitionRatio = uniqueWords.size / words.length
+    
+    if (words.length > 20 && repetitionRatio < 0.3) {
+      setSuspiciousActivity(prev => prev + 1)
+      throw new Error('Please provide a more natural description')
+    }
+    
+    // Check for suspicious patterns
+    const suspiciousPatterns = [
+      /(.)\1{5,}/, // Repeated characters
+      /(.)\1{3,}/g, // Multiple repeated characters
+      /(.)\1{2,}/g, // Triple repeated characters
+    ]
+    
+    for (const pattern of suspiciousPatterns) {
+      if (pattern.test(trimmed)) {
+        setSuspiciousActivity(prev => prev + 1)
+        throw new Error('Please provide a more natural description')
+      }
+    }
+    
+    return trimmed
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -57,13 +141,36 @@ const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
       return
     }
 
+    // Check for suspicious activity and trigger challenge
+    if (suspiciousActivity >= 2) {
+      setShowChallenge(true)
+      setError('Please complete the verification challenge')
+      return
+    }
+
+    // Validate input
+    let validatedInput
+    try {
+      validatedInput = validateInput(inputValue)
+    } catch (validationError) {
+      setError(validationError.message)
+      return
+    }
+
+    try {
+      checkRateLimit()
+    } catch (rateLimitError) {
+      setError(rateLimitError.message)
+      return
+    }
+
     setIsAnalyzing(true)
     setError('')
     onLoadingChange?.(true)
     setProgress(0)
 
     try {
-      const results = await analyzeUserRequirements(inputValue)
+      const results = await analyzeUserRequirements(validatedInput)
       setProgress(100)
       
       // Wait for progress bar animation to complete (500ms) plus a small delay for visual feedback
@@ -85,6 +192,8 @@ const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
       setIsAnalyzing(false)
     } finally {
       onLoadingChange?.(false)
+      setLastSubmissionTime(Date.now())
+      setSubmissionCount(prev => prev + 1)
     }
   }
 
@@ -114,7 +223,7 @@ const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Describe what you want to build..."
+            placeholder="What are you building?"
             className="w-full bg-transparent border-none text-white placeholder-gray-400 focus:outline-none focus:ring-0 focus:border-none focus:shadow-none transition-all duration-200 text-lg relative z-10 pr-10"
             disabled={isAnalyzing}
             style={{ 
@@ -139,6 +248,56 @@ const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
       {error && (
         <div className="mt-3 text-red-400 text-sm text-center">
           {error}
+        </div>
+      )}
+      
+      {/* Challenge Modal */}
+      {showChallenge && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-card-bg border border-gray-700 rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-white mb-4">Verification Required</h3>
+            <p className="text-gray-300 mb-4">Please answer this question to continue:</p>
+            <div className="mb-4">
+              <p className="text-cyan-400 font-medium">{generateChallenge().question}</p>
+            </div>
+            <input
+              type="text"
+              value={challengeAnswer}
+              onChange={(e) => setChallengeAnswer(e.target.value)}
+              placeholder="Your answer..."
+              className="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400"
+            />
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => {
+                  const challenge = generateChallenge()
+                  if (challengeAnswer.toLowerCase().trim() === challenge.answer.toLowerCase()) {
+                    setShowChallenge(false)
+                    setChallengeAnswer('')
+                    setSuspiciousActivity(0)
+                    setError('')
+                    // Retry the submission
+                    handleSubmit({ preventDefault: () => {} })
+                  } else {
+                    setError('Incorrect answer. Please try again.')
+                  }
+                }}
+                className="flex-1 bg-gradient-to-r from-emerald-400 to-cyan-400 text-black px-4 py-2 rounded font-semibold hover:from-emerald-500 hover:to-cyan-500 transition-all"
+              >
+                Submit
+              </button>
+              <button
+                onClick={() => {
+                  setShowChallenge(false)
+                  setChallengeAnswer('')
+                  setError('')
+                }}
+                className="flex-1 bg-gray-600 text-white px-4 py-2 rounded font-semibold hover:bg-gray-500 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
       

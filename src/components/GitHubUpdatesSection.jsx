@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { fetchGitHubUpdates, formatRelativeTime, getCachedGitHubData } from '../services/github'
 import { cardanoResources } from '../data/resources'
+import logger from '../utils/logger'
 
 const GitHubUpdatesSection = () => {
   const [githubData, setGithubData] = useState([])
@@ -32,11 +33,11 @@ const GitHubUpdatesSection = () => {
       const maxResourcesToProcess = 5 // Increased from 1 to 5 for better coverage
       const resourcesToProcess = resourcesWithGitHub.slice(0, maxResourcesToProcess)
       
-      console.log(`Found ${resourcesWithGitHub.length} resources, processing ${resourcesToProcess.length} with optimized rate limiting`)
+      logger.log(`Found ${resourcesWithGitHub.length} resources, processing ${resourcesToProcess.length} with optimized rate limiting`)
       
       for (let i = 0; i < resourcesToProcess.length; i++) {
         const resource = resourcesToProcess[i]
-        console.log(`Processing ${i + 1}/${resourcesToProcess.length}: ${resource.name}`)
+        logger.log(`Processing ${i + 1}/${resourcesToProcess.length}: ${resource.name}`)
         
         try {
           const data = await fetchGitHubUpdates(resource)
@@ -46,25 +47,25 @@ const GitHubUpdatesSection = () => {
               resource,
               ...data
             })
-            console.log(`✅ Successfully loaded data for ${resource.name}`)
+            logger.log(`✅ Successfully loaded data for ${resource.name}`)
           } else {
-            console.log(`⚠️ No recent activity for ${resource.name}`)
+            logger.log(`⚠️ No recent activity for ${resource.name}`)
           }
           
           // Stop if we have enough data
           if (allData.length >= 3) {
-            console.log(`Reached target of 3 projects, stopping`)
+            logger.log(`Reached target of 3 projects, stopping`)
             break
           }
         } catch (error) {
-          console.warn(`❌ Failed to fetch data for ${resource.name}:`, error.message)
+          logger.warn(`❌ Failed to fetch data for ${resource.name}:`, error.message)
           // Continue with other resources even if one fails
         }
       }
     
       // If no data was loaded, show a fallback message
       if (allData.length === 0) {
-        console.log(`📋 No GitHub data available, showing fallback message`)
+        logger.log(`📋 No GitHub data available, showing fallback message`)
         setGithubData([])
       } else {
         // Sort by latest activity
@@ -83,7 +84,7 @@ const GitHubUpdatesSection = () => {
         setGithubData(validData)
       }
     } catch (err) {
-      console.error('GitHub data loading error:', err)
+      logger.error('GitHub data loading error:', err)
       // Set empty data to show the "No updates available" message
       setGithubData([])
     } finally {
@@ -108,7 +109,7 @@ const GitHubUpdatesSection = () => {
             // Try to get cached data for multiple resources
             const cachedDataArray = []
             for (const resource of resourcesWithGitHub.slice(0, 3)) {
-              const cachedData = getCachedGitHubData(resource)
+              const cachedData = await getCachedGitHubData(resource)
               if (cachedData && (cachedData.releases.length > 0 || cachedData.commits.length > 0)) {
                 cachedDataArray.push({ resource, ...cachedData })
               }
@@ -130,12 +131,12 @@ const GitHubUpdatesSection = () => {
               
               setGithubData(sortedCachedData)
               setIsLoading(false)
-              console.log(`📋 Showing cached data for ${sortedCachedData.length} resources`)
+              logger.log(`📋 Showing cached data for ${sortedCachedData.length} resources`)
               return // Don't load fresh data if we have valid cached data
             }
           }
         } catch (error) {
-          console.log('No cached data available, loading fresh data...')
+          logger.log('No cached data available, loading fresh data...')
         }
         
         // Load fresh data if no cache

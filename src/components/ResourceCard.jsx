@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { 
   ExternalLink, Github, Twitter, MessageCircle,
   TerminalSquare, Database, Wallet, Image as ImageIcon, Users,
@@ -37,6 +37,7 @@ const getSocialIcon = (platform) => {
 const ResourceCard = ({ resource }) => {
   const [isHovered, setIsHovered] = useState(false)
   const [activeTab, setActiveTab] = useState('about')
+  const hoverTimeoutRef = useRef(null)
 
   const IconComponent = categoryIconComponents[resource.category] || categoryIconComponents.default;
 
@@ -50,6 +51,7 @@ const ResourceCard = ({ resource }) => {
   const TabButton = ({ tabName, children }) => (
     <button
       onClick={() => setActiveTab(tabName)}
+      onMouseEnter={() => setActiveTab(tabName)}
       className={`px-3 py-1 text-sm rounded-md transition-all duration-200  ${
         activeTab === tabName 
           ? 'bg-gray-700/50 border-gray-600 text-white shadow-inner' 
@@ -60,10 +62,23 @@ const ResourceCard = ({ resource }) => {
     </button>
   );
 
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current)
+    }
+    setIsHovered(true)
+  }
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false)
+    }, 300) // 300ms delay before collapsing
+  }
+
   return (
     <div 
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className="relative bg-card-bg/50 backdrop-blur-md border border-gray-800 rounded-xl p-4 transition-all duration-300 ease-in-out transform-gpu shadow-lg hover:shadow-2xl"
               style={{
           height: isHovered ? '12rem' : '6rem',

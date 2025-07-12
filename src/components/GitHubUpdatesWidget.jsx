@@ -8,10 +8,12 @@ import {
   ExternalLink,
   AlertCircle,
   Github,
-  ChevronRight
+  ChevronRight,
+  Clock
 } from 'lucide-react'
-import { fetchGitHubUpdates, formatRelativeTime, getCachedGitHubData } from '../services/github'
+import { fetchGitHubUpdates, formatRelativeTime, getCachedGitHubData, checkRateLimitStatus } from '../services/github'
 import { cardanoResources } from '../data/resources'
+import logger from '../utils/logger'
 
 const GitHubUpdatesWidget = () => {
   const [githubData, setGithubData] = useState([])
@@ -19,6 +21,8 @@ const GitHubUpdatesWidget = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [activeTab, setActiveTab] = useState('releases')
   const [collapseTimeout, setCollapseTimeout] = useState(null)
+  const [rateLimitExhausted, setRateLimitExhausted] = useState(false)
+  const [rateLimitResetTime, setRateLimitResetTime] = useState(null)
 
   // Handle click outside to collapse widget
   useEffect(() => {
@@ -38,6 +42,50 @@ const GitHubUpdatesWidget = () => {
 
   const loadGitHubData = async () => {
     try {
+      // Check rate limit status first
+      const rateLimitStatus = await checkRateLimitStatus()
+      if (rateLimitStatus && rateLimitStatus.remaining === 0) {
+        // Check if rate limit has actually reset
+        const now = Date.now()
+        const resetTimeMs = rateLimitStatus.reset * 1000
+        const hasReset = now >= resetTimeMs
+        
+        if (hasReset) {
+          logger.log(`🔄 Rate limit has reset, proceeding with fresh data fetch`)
+          // Continue with normal data fetching
+        } else {
+          logger.log(`⏳ Rate limit exhausted, showing cached data only`)
+          setRateLimitExhausted(true)
+          setRateLimitResetTime(new Date(resetTimeMs))
+          
+                      // Try to show any cached data we have, even if expired
+            const resourcesWithGitHub = Object.entries(cardanoResources).flatMap(([category, resources]) =>
+              resources
+                .filter(resource => resource.social?.github)
+                .map(resource => ({ ...resource, category }))
+            )
+            
+            const cachedDataArray = []
+            for (const resource of resourcesWithGitHub.slice(0, 10)) { // Increased from 3 to 10
+              const cachedData = await getCachedGitHubData(resource)
+              if (cachedData && (cachedData.releases.length > 0 || cachedData.commits.length > 0)) {
+                cachedDataArray.push({ resource, ...cachedData })
+              }
+            }
+          
+          if (cachedDataArray.length > 0) {
+            setGithubData(cachedDataArray)
+            logger.log(`📋 Showing cached data during rate limit exhaustion`)
+          } else {
+            setGithubData([])
+            logger.log(`📋 No cached data available during rate limit exhaustion`)
+          }
+          
+          setIsLoading(false)
+          return
+        }
+      }
+
       const resourcesWithGitHub = Object.entries(cardanoResources).flatMap(([category, resources]) =>
         resources
           .filter(resource => resource.social?.github)
@@ -45,15 +93,15 @@ const GitHubUpdatesWidget = () => {
       )
 
       const allData = []
-      const resourcesToProcess = resourcesWithGitHub.slice(0, 3)
+      const resourcesToProcess = resourcesWithGitHub.slice(0, 10) // Increased from 3 to 10
       
-      console.log(`🔄 Widget: Loading fresh data for ${resourcesToProcess.length} resources`)
+      logger.log(`🔄 Widget: Loading fresh data for ${resourcesToProcess.length} resources`)
       
       for (let i = 0; i < resourcesToProcess.length; i++) {
         const resource = resourcesToProcess[i]
         
         try {
-          console.log(`📡 Widget: Fetching data for ${resource.name}`)
+          logger.log(`📡 Widget: Fetching data for ${resource.name}`)
           const data = await fetchGitHubUpdates(resource)
           
           if (data.releases.length > 0 || data.commits.length > 0) {
@@ -61,19 +109,44 @@ const GitHubUpdatesWidget = () => {
               resource,
               ...data
             })
-            console.log(`✅ Widget: Successfully loaded data for ${resource.name} - ${data.releases.length} releases, ${data.commits.length} commits`)
+            logger.log(`✅ Widget: Successfully loaded data for ${resource.name} - ${data.releases.length} releases, ${data.commits.length} commits`)
           } else {
-            console.log(`⚠️ Widget: No recent activity for ${resource.name}`)
+            logger.log(`⚠️ Widget: No recent activity for ${resource.name}`)
           }
           
-          if (allData.length >= 2) break
+          if (allData.length >= 8) break // Increased from 2 to 8
         } catch (error) {
-          console.warn(`❌ Widget: Failed to fetch data for ${resource.name}:`, error.message)
+          logger.warn(`❌ Widget: Failed to fetch data for ${resource.name}:`, error.message)
+          
+          // If we hit rate limit during fetching, stop and show cached data
+          if (error.message.includes('rate limit')) {
+            logger.log(`⏳ Rate limit hit during fetching, showing cached data`)
+            setRateLimitExhausted(true)
+            setRateLimitResetTime(new Date(Date.now() + 3600000)) // 1 hour from now
+            
+            // Try to show any cached data we have
+            const cachedDataArray = []
+            for (const resource of resourcesWithGitHub.slice(0, 3)) {
+              const cachedData = await getCachedGitHubData(resource)
+              if (cachedData && (cachedData.releases.length > 0 || cachedData.commits.length > 0)) {
+                cachedDataArray.push({ resource, ...cachedData })
+              }
+            }
+            
+            if (cachedDataArray.length > 0) {
+              setGithubData(cachedDataArray)
+            } else {
+              setGithubData([])
+            }
+            
+            setIsLoading(false)
+            return
+          }
         }
       }
     
       if (allData.length === 0) {
-        console.log(`📋 Widget: No data available, showing empty state`)
+        logger.log(`📋 Widget: No data available, showing empty state`)
         setGithubData([])
       } else {
         const validData = allData.sort((a, b) => {
@@ -88,11 +161,11 @@ const GitHubUpdatesWidget = () => {
           return bLatest - aLatest
         })
 
-        console.log(`📊 Widget: Final data loaded for ${validData.length} resources`)
+        logger.log(`📊 Widget: Final data loaded for ${validData.length} resources`)
         setGithubData(validData)
       }
     } catch (err) {
-      console.error('Widget: GitHub data loading error:', err)
+      logger.error('Widget: GitHub data loading error:', err)
       setGithubData([])
     } finally {
       setIsLoading(false)
@@ -112,45 +185,45 @@ const GitHubUpdatesWidget = () => {
             .map(resource => ({ ...resource, category }))
         )
         
-        console.log(`🔍 Widget: Found ${resourcesWithGitHub.length} resources with GitHub URLs`)
+        logger.log(`🔍 Widget: Found ${resourcesWithGitHub.length} resources with GitHub URLs`)
         
         if (resourcesWithGitHub.length > 0) {
           const cachedDataArray = []
           for (const resource of resourcesWithGitHub) {
-            console.log(`🔍 Widget: Checking cache for ${resource.name} (${resource.social.github})`)
+            logger.log(`🔍 Widget: Checking cache for ${resource.name} (${resource.social.github})`)
             
-            const cachedData = getCachedGitHubData(resource)
+            const cachedData = await getCachedGitHubData(resource)
             if (cachedData && (cachedData.releases.length > 0 || cachedData.commits.length > 0)) {
-              console.log(`✅ Widget: Found cached data for ${resource.name} - ${cachedData.releases.length} releases, ${cachedData.commits.length} commits`)
+              logger.log(`✅ Widget: Found cached data for ${resource.name} - ${cachedData.releases.length} releases, ${cachedData.commits.length} commits`)
               cachedDataArray.push({ resource, ...cachedData })
             } else {
-              console.log(`❌ Widget: No cached data for ${resource.name}`)
+              logger.log(`❌ Widget: No cached data for ${resource.name}`)
             }
           }
           
-          console.log(`📊 Widget: Total cached resources found: ${cachedDataArray.length}`)
+          logger.log(`📊 Widget: Total cached resources found: ${cachedDataArray.length}`)
           
           if (cachedDataArray.length > 0) {
             setGithubData(cachedDataArray)
             setIsLoading(false)
-            console.log(`📋 Widget: Using cached data for ${cachedDataArray.length} resources`)
+            logger.log(`📋 Widget: Using cached data for ${cachedDataArray.length} resources`)
             return
           } else {
-            console.log(`🔄 Widget: No cached data found, loading fresh data...`)
+            logger.log(`🔄 Widget: No cached data found, loading fresh data...`)
             // Wait a bit for any ongoing cache population to complete
             await new Promise(resolve => setTimeout(resolve, 2000))
             
             // Check cache again after waiting
             const retryCachedDataArray = []
-            for (const resource of resourcesWithGitHub.slice(0, 3)) {
-              const retryCachedData = getCachedGitHubData(resource)
+            for (const resource of resourcesWithGitHub.slice(0, 10)) { // Increased from 3 to 10
+              const retryCachedData = await getCachedGitHubData(resource)
               if (retryCachedData && (retryCachedData.releases.length > 0 || retryCachedData.commits.length > 0)) {
                 retryCachedDataArray.push({ resource, ...retryCachedData })
               }
             }
             
             if (retryCachedDataArray.length > 0) {
-              console.log(`📋 Widget: Found cached data after retry for ${retryCachedDataArray.length} resources`)
+              logger.log(`📋 Widget: Found cached data after retry for ${retryCachedDataArray.length} resources`)
               setGithubData(retryCachedDataArray)
               setIsLoading(false)
               return
@@ -158,11 +231,11 @@ const GitHubUpdatesWidget = () => {
           }
         }
       } catch (error) {
-        console.log('Widget: Error checking cached data:', error)
+        logger.log('Widget: Error checking cached data:', error)
       }
       
       // If no cached data found, load fresh data
-      console.log(`🔄 Widget: Loading fresh data as fallback`)
+      logger.log(`🔄 Widget: Loading fresh data as fallback`)
       loadGitHubData()
     }
     checkCachedData()
@@ -173,7 +246,7 @@ const GitHubUpdatesWidget = () => {
     return total + data.releases.length + data.commits.length
   }, 0)
 
-  // Aggregate all updates from all resources, sort by date, and limit to 50
+  // Aggregate all updates from all resources, sort by date, and limit to 100
   const allUpdates = githubData.flatMap(data => {
     const updates = []
     
@@ -198,7 +271,7 @@ const GitHubUpdatesWidget = () => {
     }
     
     return updates
-  }).sort((a, b) => b.timestamp - a.timestamp).slice(0, 50)
+  }).sort((a, b) => b.timestamp - a.timestamp).slice(0, 100) // Increased from 50 to 100
 
   return (
     <div 
@@ -248,6 +321,24 @@ const GitHubUpdatesWidget = () => {
                 <ChevronRight size={16} className="text-gray-400" />
               </div>
             </div>
+            
+            {/* Rate Limit Warning */}
+            {rateLimitExhausted && (
+              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-2 mb-3">
+                <div className="flex items-center space-x-2">
+                  <Clock size={12} className="text-yellow-400" />
+                  <span className="text-yellow-400 text-xs">
+                    Rate limit exhausted
+                    {rateLimitResetTime && (
+                      <span className="text-gray-400 ml-1">
+                        (resets in {formatRelativeTime(rateLimitResetTime.toISOString())})
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            )}
+            
             {/* Tabs */}
             <div className="flex bg-gray-800/30 rounded-md p-0.5 border border-gray-700/50 mb-3">
               <button
@@ -274,7 +365,7 @@ const GitHubUpdatesWidget = () => {
               </button>
             </div>
             {/* Content */}
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-2 max-h-[500px] overflow-y-auto">
               {isLoading ? (
                 <div className="text-center py-4">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400 mx-auto mb-2"></div>
