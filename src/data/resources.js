@@ -197,7 +197,7 @@ export const cardanoResources = {
         x: "https://x.com/godotengine" 
       },
       docs: "https://github.com/Odiobill/NmkrGodot#readme",
-      category: "Development Tools"
+      category: "Minting and NFTs"
     },
     {
       id: 61,
@@ -212,7 +212,7 @@ export const cardanoResources = {
         x: "https://x.com/futurefestxr"
       },
       docs: "https://github.com/FutureFest/NMKR-Studio-Unity-SDK#readme",
-      category: "Development Tools"
+      category: "Minting and NFTs"
     }
   ],
   "Infrastructure & APIs": [
