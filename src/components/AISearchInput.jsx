@@ -136,10 +136,7 @@ const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
       return
     }
 
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      setError('OpenAI API key not configured')
-      return
-    }
+    // API key check removed - now handled server-side
 
     // Check for suspicious activity and trigger challenge
     if (suspiciousActivity >= 2) {

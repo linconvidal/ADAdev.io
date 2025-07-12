@@ -1,12 +1,5 @@
-import OpenAI from 'openai'
 import { cardanoResources } from '../data/resources'
 import { validateContent } from './rateLimiter'
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true // Note: In production, this should be handled server-side
-})
 
 /**
  * Filter resources based on user input keywords
@@ -81,87 +74,22 @@ export const analyzeUserRequirements = async (userInput) => {
       throw new Error(`Content validation failed: ${contentValidation.issues.join(', ')}`)
     }
 
-    // Flatten all resources for analysis
-    const allResources = Object.entries(cardanoResources).flatMap(([category, resources]) =>
-      resources.map(resource => ({ ...resource, category }))
-    )
-
-    // Filter to most relevant resources
-    const relevantResources = filterRelevantResources(allResources, userInput)
-
-    // Create a concise resource summary for the AI
-    const resourceSummary = relevantResources.map(resource => ({
-      name: resource.name,
-      category: resource.category,
-      description: resource.description,
-      keySolutions: resource.keySolutions
-    }))
-
-    const prompt = `
-You are a Cardano development expert. A developer wants to build something on Cardano.
-
-User Requirements: "${userInput}"
-
-Available Cardano Tools (most relevant):
-${JSON.stringify(resourceSummary, null, 2)}
-
-Analyze the user's requirements and return a JSON object with this structure:
-{
-  "analysis": "Brief analysis of what the user wants to build",
-  "recommendedTools": [
-    {
-      "resource": "Resource name from the list",
-      "reason": "Why this tool is recommended",
-      "priority": "high|medium|low"
-    }
-  ],
-  "developmentPlan": {
-    "overview": "Brief overview of the development approach",
-    "approaches": [
-      {
-        "name": "Approach name",
-        "description": "Description of this approach",
-        "tools": ["List of tools for this approach"],
-        "complexity": "beginner|intermediate|advanced"
-      }
-    ]
-  }
-}
-
-Keep the response concise and focus on the most relevant tools.`
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content: "You are a Cardano development expert. Provide accurate, practical advice for building on Cardano. Always return valid JSON. Keep responses concise."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      temperature: 0.3,
-      max_tokens: 1500
+    // Make server-side AI analysis request
+    const response = await fetch('/api/ai/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userInput })
     })
 
-    const response = completion.choices[0].message.content
-    const parsedResponse = JSON.parse(response)
-
-    // Map recommended tools back to actual resource objects
-    const recommendedResources = parsedResponse.recommendedTools
-      .map(rec => {
-        const resource = allResources.find(r => r.name === rec.resource)
-        return resource ? { ...resource, reason: rec.reason, priority: rec.priority } : null
-      })
-      .filter(Boolean)
-
-    return {
-      analysis: parsedResponse.analysis,
-      recommendedResources,
-      developmentPlan: parsedResponse.developmentPlan
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || 'AI analysis failed')
     }
+
+    const result = await response.json()
+    return result
 
   } catch (error) {
     logger.error('AI analysis error:', error)

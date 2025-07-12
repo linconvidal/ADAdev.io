@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react'
 import Header from './components/Header'
 import Hero from './components/Hero'
 import GitHubUpdatesWidget from './components/GitHubUpdatesWidget'
+import AddResourceWidget from './components/AddResourceWidget'
 import SearchBar from './components/SearchBar'
 import ResourceCard from './components/ResourceCard'
 import AIResults from './components/AIResults'
@@ -101,6 +102,9 @@ function App() {
       
       {/* GitHub Updates Widget */}
       <GitHubUpdatesWidget />
+      
+      {/* Add Resource Widget */}
+      <AddResourceWidget />
       
       {/* AI Results Section - Show when AI results are available */}
       {aiResults && (

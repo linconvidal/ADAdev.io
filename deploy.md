@@ -22,7 +22,7 @@
    - Connect your GitHub repository
    - Digital Ocean will automatically detect the `app.yaml` configuration
    - Set environment variables:
-     - `VITE_OPENAI_API_KEY`: Your OpenAI API key (as a secret)
+     - `VITE_OPENAI_API_KEY`: Your OpenAI API key (server-side secret)
 
 3. **Configure Environment Variables**
    - In the Digital Ocean App Platform dashboard
@@ -101,7 +101,7 @@
 
 ### Security Considerations
 
-- OpenAI API key is stored as a secret in Digital Ocean
+- OpenAI API key is stored as a server-side secret in Digital Ocean
 - HTTPS is automatically enabled
 - Security headers are configured in nginx
 - No sensitive data is exposed in client-side code

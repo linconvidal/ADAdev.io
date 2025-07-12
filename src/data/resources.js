@@ -19,14 +19,15 @@ export const cardanoResources = {
     {
       id: 2,
       name: "OpShin",
-      logo: "https://opshin.dev/logo.svg",
+      logo: "https://opshin.dev/logo.png",
       description: "A programming language for creating smart contracts on Cardano using Python.",
       fullDescription: "OpShin brings the power and familiarity of Python to the Cardano blockchain. It allows developers to write smart contracts using Python syntax, which are then compiled into Plutus Core. This lowers the barrier to entry for Python developers looking to build on Cardano.",
       keySolutions: ["Python", "Smart contracts", "Compiler", "Testing"],
       website: "https://opshin.dev/",
       social: {
         github: "https://github.com/OpShin",
-        discord: "https://discord.com/invite/umR3A2g4uw"
+        discord: "https://discord.com/invite/umR3A2g4uw",
+        x: "https://x.com/OpShinDev"
       },
       docs: "https://book.opshin.dev/",
       category: "Development Tools"
@@ -419,7 +420,7 @@ export const cardanoResources = {
     {
       id: 37,
       name: "OpShin Pioneer Program",
-      logo: "https://opshin.io/logo.svg",
+      logo: "https://github.com/OpShin/opshin-pioneer-program/raw/main/opshin-pioneer-program.png",
       description: "Python-based implementation of the Plutus Pioneer Program for Cardano development.",
       fullDescription: "The OpShin Pioneer Program is a Python implementation of the Plutus Pioneer Program lectures, providing an alternative approach to learning Cardano smart contract development using Python syntax and the OpShin framework.",
       keySolutions: ["Python", "Smart contracts", "Alternative learning", "OpShin framework"],

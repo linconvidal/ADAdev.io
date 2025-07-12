@@ -275,7 +275,7 @@ const GitHubUpdatesWidget = () => {
 
   return (
     <div 
-      className="fixed left-0 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block github-widget"
+      className={`fixed left-0 top-1/2 transform -translate-y-1/2 ${isExpanded ? 'z-[9999]' : 'z-40'} hidden lg:block github-widget`}
       onMouseEnter={() => {
         if (collapseTimeout) {
           clearTimeout(collapseTimeout)

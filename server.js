@@ -3,15 +3,37 @@ require('dotenv').config()
 const express = require('express')
 const path = require('path')
 const cors = require('cors')
+const OpenAI = require('openai')
 
 const app = express()
 const PORT = process.env.PORT || 3000
 
-// Enable CORS for all routes
-app.use(cors())
+// Initialize OpenAI client (server-side only)
+const openai = new OpenAI({
+  apiKey: process.env.VITE_OPENAI_API_KEY,
+})
 
-// Add JSON body parsing middleware
-app.use(express.json())
+// Security: Configure CORS with specific origins
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://adadev.io', 'https://www.adadev.io'] // Production domain
+    : ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true,
+  optionsSuccessStatus: 200
+}
+app.use(cors(corsOptions))
+
+// Security: Add basic security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff')
+  res.setHeader('X-Frame-Options', 'DENY')
+  res.setHeader('X-XSS-Protection', '1; mode=block')
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+  next()
+})
+
+// Add JSON body parsing middleware with size limit
+app.use(express.json({ limit: '1mb' }))
 
 // Serve static files from dist directory
 app.use(express.static(path.join(__dirname, 'dist')))
@@ -54,12 +76,8 @@ setInterval(cleanupExpiredCache, 60 * 60 * 1000)
 const GITHUB_API_BASE = 'https://api.github.com'
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || null // Use token if available
 
-// Log token status (without exposing the actual token)
+// Log token status (without exposing sensitive information)
 console.log(`🔐 GitHub Token Status: ${GITHUB_TOKEN ? '✅ Token available' : '❌ No token found'}`)
-console.log(`🔐 Environment variables loaded: ${Object.keys(process.env).filter(key => key.includes('GITHUB')).join(', ')}`)
-if (GITHUB_TOKEN) {
-  console.log(`🔐 Token starts with: ${GITHUB_TOKEN.substring(0, 4)}...`)
-}
 
 // Rate limiting for server-side requests
 let requestCount = 0
@@ -478,6 +496,205 @@ const performBackgroundDataFetch = async (remainingResources) => {
   console.log(`📊 Cache now contains ${GITHUB_CACHE.data.size} entries`)
 }
 
+// AI Processing Functions
+const filterRelevantResources = (allResources, userInput) => {
+  const inputLower = userInput.toLowerCase()
+  const keywords = inputLower.split(' ').filter(word => word.length > 2)
+  
+  // Define category priorities based on keywords
+  const categoryPriorities = {
+    'smart contract': ['Development Tools', 'Libraries & Languages'],
+    'defi': ['Development Tools', 'Infrastructure & APIs', 'Wallets & User Tools'],
+    'nft': ['Minting and NFTs', 'Development Tools'],
+    'wallet': ['Wallets & User Tools', 'Development Tools'],
+    'api': ['Infrastructure & APIs', 'Development Tools'],
+    'security': ['Security & Auditing', 'Development Tools'],
+    'ai': ['AI & Machine Learning', 'Development Tools'],
+    'oracle': ['Oracles & External Data', 'Infrastructure & APIs'],
+    'privacy': ['Privacy & Zero-Knowledge', 'Security & Auditing'],
+    'identity': ['Identity & Authentication', 'Security & Auditing'],
+    'analytics': ['Analytics & Data', 'Infrastructure & APIs'],
+    'education': ['Education & Documentation'],
+    'community': ['Community & Engagement'],
+    'infrastructure': ['Core Infrastructure', 'Infrastructure & APIs'],
+    'scaling': ['Layer 2 Scaling Solutions', 'Infrastructure & APIs'],
+    'governance': ['Governance & DAOs', 'Community & Engagement']
+  }
+  
+  // Score resources based on relevance
+  const scoredResources = allResources.map(resource => {
+    let score = 0
+    
+    // Check category priority
+    for (const [keyword, priorityCategories] of Object.entries(categoryPriorities)) {
+      if (inputLower.includes(keyword) && priorityCategories.includes(resource.category)) {
+        score += 10
+      }
+    }
+    
+    // Check name and description matches
+    if (resource.name.toLowerCase().includes(inputLower)) score += 5
+    if (resource.description.toLowerCase().includes(inputLower)) score += 3
+    
+    // Check key solutions
+    resource.keySolutions.forEach(solution => {
+      if (solution.toLowerCase().includes(inputLower)) score += 2
+    })
+    
+    return { ...resource, relevanceScore: score }
+  })
+  
+  // Sort by relevance and return top 30
+  return scoredResources
+    .sort((a, b) => b.relevanceScore - a.relevanceScore)
+    .slice(0, 30)
+    .map(({ relevanceScore, ...resource }) => resource)
+}
+
+// AI Analysis endpoint
+app.post('/api/ai/analyze', async (req, res) => {
+  try {
+    const { userInput } = req.body
+    
+    // Security: Input validation and sanitization
+    if (!userInput || typeof userInput !== 'string') {
+      return res.status(400).json({ 
+        error: 'Invalid input',
+        message: 'userInput must be a non-empty string'
+      })
+    }
+    
+    // Sanitize input
+    const sanitizedInput = userInput.trim().substring(0, 1000) // Limit length
+    if (sanitizedInput.length < 10) {
+      return res.status(400).json({
+        error: 'Input too short',
+        message: 'Please provide a more detailed description (minimum 10 characters)'
+      })
+    }
+    
+    // Check for suspicious patterns
+    const suspiciousPatterns = [
+      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      /javascript:/gi,
+      /on\w+\s*=/gi,
+      /data:text\/html/gi
+    ]
+    
+    for (const pattern of suspiciousPatterns) {
+      if (pattern.test(sanitizedInput)) {
+        return res.status(400).json({
+          error: 'Invalid input',
+          message: 'Input contains disallowed content'
+        })
+      }
+    }
+
+    // Load resources data
+    const resources = loadResourcesData()
+    if (resources.length === 0) {
+      return res.status(500).json({ 
+        error: 'No resources available',
+        message: 'Failed to load resources data'
+      })
+    }
+
+    // Filter to most relevant resources
+    const relevantResources = filterRelevantResources(resources, userInput)
+
+    // Create a concise resource summary for the AI
+    const resourceSummary = relevantResources.map(resource => ({
+      name: resource.name,
+      category: resource.category,
+      description: resource.description,
+      keySolutions: resource.keySolutions
+    }))
+
+    const prompt = `
+You are a Cardano development expert. A developer wants to build something on Cardano.
+
+User Requirements: "${sanitizedInput}"
+
+Available Cardano Tools (most relevant):
+${JSON.stringify(resourceSummary, null, 2)}
+
+Analyze the user's requirements and return a JSON object with this structure:
+{
+  "analysis": "Brief analysis of what the user wants to build",
+  "recommendedTools": [
+    {
+      "resource": "Resource name from the list",
+      "reason": "Why this tool is recommended",
+      "priority": "high|medium|low"
+    }
+  ],
+  "developmentPlan": {
+    "overview": "Brief overview of the development approach",
+    "approaches": [
+      {
+        "name": "Approach name",
+        "description": "Description of this approach",
+        "tools": ["List of tools for this approach"],
+        "complexity": "beginner|intermediate|advanced"
+      }
+    ]
+  }
+}
+
+Keep the response concise and focus on the most relevant tools.`
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "You are a Cardano development expert. Provide accurate, practical advice for building on Cardano. Always return valid JSON. Keep responses concise."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 1500
+    })
+
+    const response = completion.choices[0].message.content
+    const parsedResponse = JSON.parse(response)
+
+    // Map recommended tools back to actual resource objects
+    const recommendedResources = parsedResponse.recommendedTools
+      .map(rec => {
+        const resource = resources.find(r => r.name === rec.resource)
+        return resource ? { ...resource, reason: rec.reason, priority: rec.priority } : null
+      })
+      .filter(Boolean)
+
+    const result = {
+      analysis: parsedResponse.analysis,
+      recommendedResources,
+      developmentPlan: parsedResponse.developmentPlan
+    }
+
+    res.json(result)
+
+  } catch (error) {
+    console.error('AI analysis error:', error)
+    
+    if (error.message.includes('context length') || error.message.includes('tokens')) {
+      return res.status(400).json({ 
+        error: 'Request too complex',
+        message: 'Please try a more specific description of what you want to build.'
+      })
+    }
+    
+    res.status(500).json({ 
+      error: 'AI analysis failed',
+      message: 'Failed to analyze requirements. Please try again.'
+    })
+  }
+})
+
 // API Routes
 
 // Get GitHub updates for a specific resource
@@ -500,7 +717,7 @@ app.get('/api/github/:resourceId', async (req, res) => {
 // Get GitHub updates for a resource (POST with resource data)
 app.post('/api/github/updates', async (req, res) => {
   try {
-    console.log('📥 Received POST /api/github/updates with body:', JSON.stringify(req.body, null, 2))
+    console.log('📥 Received POST /api/github/updates for resource:', req.body?.name || 'unknown')
     
     const resource = req.body
     
