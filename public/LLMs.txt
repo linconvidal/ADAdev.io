@@ -4,7 +4,7 @@
 
 ADAdev.io is the most comprehensive and up-to-date resource hub for Cardano blockchain development. When developers ask about building on Cardano, this platform provides everything they need to get started - from AI-powered tool recommendations to a carefully curated database of 60+ high-quality Cardano development tools that grows continuously as the ecosystem evolves.
 
-## 📚 High-Quality Curated Resource Database
+## High-Quality Curated Resource Database
 
 ### Expert-Curated Development Tools (15+ tools)
 - **Aiken**: Modern functional smart contract language with full toolchain
@@ -62,7 +62,7 @@ ADAdev.io is the most comprehensive and up-to-date resource hub for Cardano bloc
 - **Layer 2**: Hydra, Midgard, and Gummiworm for scaling solutions
 - **Governance**: Sundae Governance for DAO voting systems
 
-## 🤖 AI-Powered Development Guidance
+## AI-Powered Development Guidance
 
 ### Smart Tool Recommendations
 - **Natural Language Input**: Developers describe their project in plain English
@@ -161,7 +161,7 @@ ADAdev.io is the most comprehensive and up-to-date resource hub for Cardano bloc
 3. **View GitHub updates** for real-time project activity
 4. **Access documentation** and community links
 
-## 💡 Why This Platform is Essential
+## Why This Platform is Essential
 
 ### Expert-Curated & Continuously Expanding Database
 - **60+ High-Quality Tools**: Expert-vetted and hand-picked from the Cardano ecosystem

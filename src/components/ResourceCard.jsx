@@ -94,7 +94,7 @@ const ResourceCard = ({ resource }) => {
       onMouseLeave={handleMouseLeave}
       className="relative bg-card-bg/50 backdrop-blur-md border border-gray-800 rounded-xl p-4 transition-all duration-300 ease-in-out transform-gpu shadow-lg hover:shadow-2xl"
               style={{
-          height: isHovered ? '20rem' : '6rem',
+          height: isHovered ? '15rem' : '6rem',
           transform: isHovered ? 'scale(1.03)' : 'scale(1)',
           zIndex: isHovered ? 10 : 1,
         }}
