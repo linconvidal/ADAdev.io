@@ -94,4 +94,46 @@ jspm_packages/
 .dynamodb/
 
 # TernJS port file
-.tern-port 
+.tern-port
+
+# Personal documentation and notes
+*.md
+!README.md
+!SECURITY.md
+
+# Design files
+*.psd
+*.ai
+*.sketch
+*.fig
+*.xd
+
+# Personal development notes
+NOTES.md
+TODO.md
+CHANGELOG.md
+DEVELOPMENT.md
+DEPLOYMENT.md
+ANTI_SPAM.md
+LOGGING.md
+deploy.md
+
+# Personal scripts and utilities
+scripts/
+*.sh
+*.bat
+
+# Local configuration files
+.env.*
+!.env.example
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/ 
