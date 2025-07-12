@@ -37,7 +37,7 @@ const Hero = ({ onAIAnalysisComplete, onAILoadingChange }) => {
             
             {/* Subheadline */}
             <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Share your idea with our AI. We’ll guide you to the right Cardano stack. Or just browse below.            </p>
+            Share your idea with us and we’ll guide you to the right Cardano stack. Or just browse below.            </p>
 
             {/* AI Search Input */}
             <AISearchInput 
