@@ -3,13 +3,15 @@ export const cardanoResources = {
     {
       id: 1,
       name: "Aiken",
-      logo: "https://aiken-lang.org/logo-dark.svg",
+      logo: "https://raw.githubusercontent.com/aiken-lang/branding/main/assets/logo-light.png",
       description: "A modern, functional smart contract language and toolchain for Cardano.",
       fullDescription: "Aiken is a modern, functional smart contract language and toolchain for Cardano. It is purpose-built for creating secure, reliable, and performant smart contracts, offering a clear and concise syntax, a powerful type system, and an all-in-one toolchain for testing, documenting, and deploying your projects.",
       keySolutions: ["Smart contracts", "Language", "Toolchain", "Testing"],
       website: "https://aiken-lang.org/",
       social: {
-        github: "https://github.com/aiken-lang"
+        github: "https://github.com/aiken-lang",
+        discord: "https://discord.gg/ub6atE94v4",
+        x: "https://x.com/aiken_eng"
       },
       docs: "https://aiken-lang.org/installation-instructions",
       category: "Development Tools"
@@ -180,6 +182,36 @@ export const cardanoResources = {
         github: "https://github.com/dotare/cardano-delegation"
       },
       docs: "https://www.npmjs.com/package/@dotare/cardano-delegation",
+      category: "Development Tools"
+    },
+    {
+      id: 60,
+      name: "NMKR Godot Plugin",
+      logo: "https://pbs.twimg.com/profile_images/1819445313037287424/EP8_eRgr_400x400.png",
+      description: "A Godot plugin for accessing the NMKR Studio API, enabling NFT and blockchain integration in games.",
+      fullDescription: "The NMKR SDK for Godot is a plugin that addresses the need for seamless integration of NFTs and other blockchain capabilities in the gaming industry, particularly targeting indie game developers using Godot. It facilitates easier Web3 adoption and NFT technology implementation for game developers adopting different revenue models.",
+      keySolutions: ["Godot plugin", "NFT integration", "Game development", "Blockchain integration", "NMKR API"],
+      website: "https://github.com/Odiobill/NmkrGodot",
+      social: {
+        github: "https://github.com/Odiobill/NmkrGodot",
+        x: "https://x.com/godotengine" 
+      },
+      docs: "https://github.com/Odiobill/NmkrGodot#readme",
+      category: "Development Tools"
+    },
+    {
+      id: 61,
+      name: "NMKR Unity SDK",
+      logo: "https://pbs.twimg.com/profile_images/1484652032635981828/UbGOIUjC_400x400.jpg",
+      description: "Unity SDK for NMKR Studio API integration, enabling NFT and blockchain capabilities in Unity games.",
+      fullDescription: "The NMKR Studio Unity SDK provides Unity developers with tools to integrate NMKR Studio's NFT and blockchain capabilities into their games. It enables seamless NFT minting, management, and blockchain interactions within Unity game projects.",
+      keySolutions: ["Unity SDK", "NFT integration", "Game development", "Blockchain integration", "NMKR API"],
+      website: "https://www.futurefest.io/",
+      social: {
+        github: "https://github.com/FutureFest/NMKR-Studio-Unity-SDK",
+        x: "https://x.com/futurefestxr"
+      },
+      docs: "https://github.com/FutureFest/NMKR-Studio-Unity-SDK#readme",
       category: "Development Tools"
     }
   ],
@@ -419,7 +451,7 @@ export const cardanoResources = {
       keySolutions: ["Mobile wallet", "Non-custodial", "dApp connector", "NFT support", "User-friendly"],
       website: "https://vespr.xyz",
       social: {
-        twitter: "https://twitter.com/vesprwallet" // Based on search; adjust if exact
+        x: "https://x.com/vesprwallet" // Based on search; adjust if exact
       },
       category: "Wallets & User Tools"
     },
@@ -470,7 +502,7 @@ export const cardanoResources = {
       keySolutions: ["Self-custodial", "Cardano & Bitcoin support", "Staking & Delegation", "DeFi Lending", "Governance Voting", "dApp Explorer"],
       website: "https://begin.is/",
       social: {
-        twitter: "https://twitter.com/BeginWallet",
+        x: "https://x.com/BeginWallet",
         github: "https://github.com/BeginWallet"
       },
       category: "Wallets & User Tools"
@@ -486,7 +518,21 @@ export const cardanoResources = {
       keySolutions: ["Decentralized ID", "Self-sovereign", "Authentication", "Secure login"],
       website: "https://iamx.id/",
       social: {
-        twitter: "https://twitter.com/iamx_id"
+        x: "https://x.com/iamx_id"
+      },
+      category: "Identity & Authentication"
+    },
+    {
+      id: 59,
+      name: "Vault3",
+      logo: "https://x.com/vault3_io/photo",
+      description: "Decentralized identity and authentication platform for Cardano, providing secure digital identity solutions.",
+      fullDescription: "Vault3 is a Cardano-based platform focused on decentralized identity and authentication solutions. It provides tools for secure digital identity management, enabling users to control their own data and authenticate securely across different platforms on the Cardano blockchain.",
+      keySolutions: ["Decentralized identity", "Authentication", "Digital identity", "Secure login","Token-gateing","NFT-gateing"],
+      website: "https://vault3.io/",
+      social: {
+        github: "https://github.com/vault3-io/vault3",
+        x: "https://x.com/vault3_io"
       },
       category: "Identity & Authentication"
     }
@@ -501,7 +547,7 @@ export const cardanoResources = {
       keySolutions: ["Decentralized oracle", "Off-chain data", "Data feeds", "Reliable"],
       website: "https://charli3.io/",
       social: {
-        twitter: "https://twitter.com/Charli3_Oracles"
+        x: "https://x.com/Charli3_Oracles"
       },
       category: "Oracles & External Data"
     },
@@ -514,7 +560,7 @@ export const cardanoResources = {
       keySolutions: ["Decentralized Oracle", "Data Validation", "Fact Statements", "Auditable Data"],
       website: "https://orcfax.io/",
       social: {
-        twitter: "https://twitter.com/Orcfax"
+        x: "https://x.com/Orcfax"
       },
       category: "Oracles & External Data"
     }
@@ -547,7 +593,7 @@ export const cardanoResources = {
     {
       id: 20,
       name: "Masumi Network",
-      logo: "https://docs.masumi.network/logo.svg",
+      logo: "https://www.masumi.network/",
       description: "Groundbreaking blockchain protocol on Cardano enabling the AI Agent Economy with decentralized infrastructure.",
       fullDescription: "Masumi Network is a groundbreaking protocol on Cardano designed to enable the AI Agent Economy. It provides decentralized infrastructure for AI agent transactions, identity management, and discovery.",
       keySolutions: ["AI agent transactions", "Decision logging", "Agent identity", "Agent discovery"],

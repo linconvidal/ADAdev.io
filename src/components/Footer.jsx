@@ -21,7 +21,7 @@ const Footer = () => {
             href="https://x.com/SLFMR1"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Twitter"
+            aria-label="x"
             className="hover:scale-110 transition-transform duration-200"
           >
             <XIcon />
