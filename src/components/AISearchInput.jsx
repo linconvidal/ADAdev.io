@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Search, Sparkles, Loader2 } from 'lucide-react'
+import { Search, Loader2 } from 'lucide-react'
 import { analyzeUserRequirements } from '../services/ai'
 
 const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
@@ -214,10 +214,6 @@ const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
             <Search className="h-5 w-5 text-gray-400" />
           </div>
-          {/* AI Icon */}
-          <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none z-10">
-            <Sparkles className="h-5 w-5 text-cyan-400" />
-          </div>
           {/* Input Field */}
           <input
             type="text"
@@ -237,7 +233,7 @@ const AISearchInput = ({ onAnalysisComplete, onLoadingChange }) => {
             <button
               type="submit"
               disabled={!inputValue.trim()}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-400 via-cyan-400 to-sky-400 text-black px-6 py-5 rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-custom-bg disabled:opacity-50 disabled:cursor-not-allowed hover:from-emerald-500 hover:via-cyan-500 hover:to-sky-500 hover:scale-105 active:scale-95 z-40"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-emerald-400 via-cyan-400 to-sky-400 text-black px-5 py-5 rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-custom-bg disabled:opacity-50 disabled:cursor-not-allowed hover:from-emerald-500 hover:via-cyan-500 hover:to-sky-500 hover:scale-105 active:scale-95 z-40"
             >
             </button>
           )}
