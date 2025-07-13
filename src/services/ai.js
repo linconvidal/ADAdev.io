@@ -1,5 +1,6 @@
 import { cardanoResources } from '../data/resources'
 import { validateContent } from './rateLimiter'
+import logger from '../utils/logger'
 
 /**
  * Filter resources based on user input keywords
@@ -109,6 +110,10 @@ export const analyzeUserRequirements = async (userInput) => {
  * @returns {string} - Markdown formatted development plan
  */
 export const generateMarkdownPlan = (aiResults) => {
+  if (!aiResults) {
+    throw new Error('No AI results provided')
+  }
+  
   const { analysis, recommendedResources, developmentPlan } = aiResults
 
   let markdown = `# Cardano Development Plan\n\n`
@@ -119,13 +124,14 @@ export const generateMarkdownPlan = (aiResults) => {
 
   // Recommended tools section
   markdown += `## Recommended Tools\n\n`
-  recommendedResources.forEach((resource, index) => {
-    markdown += `### ${index + 1}. ${resource.name}\n`
-    markdown += `**Category:** ${resource.category}\n\n`
-    markdown += `**Description:** ${resource.description}\n\n`
-    markdown += `**Why Recommended:** ${resource.reason}\n\n`
-    markdown += `**Priority:** ${resource.priority}\n\n`
-    markdown += `**Website:** ${resource.website}\n\n`
+  ;(recommendedResources || []).forEach((resource, index) => {
+    if (!resource) return
+    markdown += `### ${index + 1}. ${resource.name || 'Unknown Tool'}\n`
+    markdown += `**Category:** ${resource.category || 'Uncategorized'}\n\n`
+    markdown += `**Description:** ${resource.description || 'No description available'}\n\n`
+    markdown += `**Why Recommended:** ${resource.reason || 'Recommended for your use case'}\n\n`
+    markdown += `**Priority:** ${resource.priority || 'medium'}\n\n`
+    markdown += `**Website:** ${resource.website || 'No website available'}\n\n`
     if (resource.docs) {
       markdown += `**Documentation:** ${resource.docs}\n\n`
     }
@@ -134,15 +140,16 @@ export const generateMarkdownPlan = (aiResults) => {
 
   // Development approaches section
   markdown += `## Development Approaches\n\n`
-  markdown += `${developmentPlan.overview}\n\n`
+  markdown += `${developmentPlan?.overview || 'No development plan overview available'}\n\n`
 
-  developmentPlan.approaches.forEach((approach, index) => {
-    markdown += `### Approach ${index + 1}: ${approach.name}\n\n`
-    markdown += `**Description:** ${approach.description}\n\n`
-    markdown += `**Complexity:** ${approach.complexity}\n\n`
+  ;(developmentPlan?.approaches || []).forEach((approach, index) => {
+    if (!approach) return
+    markdown += `### Approach ${index + 1}: ${approach.name || 'Unnamed Approach'}\n\n`
+    markdown += `**Description:** ${approach.description || 'No description available'}\n\n`
+    markdown += `**Complexity:** ${approach.complexity || 'unknown'}\n\n`
     markdown += `**Required Tools:**\n`
-    approach.tools.forEach(tool => {
-      markdown += `- ${tool}\n`
+    ;(approach.tools || []).forEach(tool => {
+      if (tool) markdown += `- ${tool}\n`
     })
     markdown += `\n---\n\n`
   })

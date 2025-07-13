@@ -150,14 +150,14 @@ const GitHubUpdatesWidget = () => {
         setGithubData([])
       } else {
         const validData = allData.sort((a, b) => {
-          const aLatest = Math.max(
-            ...a.releases.map(r => new Date(r.publishedAt).getTime()),
-            ...a.commits.map(c => new Date(c.date).getTime())
-          )
-          const bLatest = Math.max(
-            ...b.releases.map(r => new Date(r.publishedAt).getTime()),
-            ...b.commits.map(c => new Date(c.date).getTime())
-          )
+          const aReleases = (a.releases || []).map(r => new Date(r.publishedAt || 0).getTime())
+          const aCommits = (a.commits || []).map(c => new Date(c.date || 0).getTime())
+          const aLatest = aReleases.length > 0 || aCommits.length > 0 ? Math.max(...aReleases, ...aCommits) : 0
+          
+          const bReleases = (b.releases || []).map(r => new Date(r.publishedAt || 0).getTime())
+          const bCommits = (b.commits || []).map(c => new Date(c.date || 0).getTime())
+          const bLatest = bReleases.length > 0 || bCommits.length > 0 ? Math.max(...bReleases, ...bCommits) : 0
+          
           return bLatest - aLatest
         })
 
@@ -243,7 +243,9 @@ const GitHubUpdatesWidget = () => {
 
   // Get total update count
   const totalUpdates = githubData.reduce((total, data) => {
-    return total + data.releases.length + data.commits.length
+    const releasesCount = (data.releases || []).length
+    const commitsCount = (data.commits || []).length
+    return total + releasesCount + commitsCount
   }, 0)
 
   // Aggregate all updates from all resources, sort by date, and limit to 100

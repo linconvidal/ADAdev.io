@@ -70,14 +70,14 @@ const GitHubUpdatesSection = () => {
       } else {
         // Sort by latest activity
         const validData = allData.sort((a, b) => {
-          const aLatest = Math.max(
-            ...a.releases.map(r => new Date(r.publishedAt).getTime()),
-            ...a.commits.map(c => new Date(c.date).getTime())
-          )
-          const bLatest = Math.max(
-            ...b.releases.map(r => new Date(r.publishedAt).getTime()),
-            ...b.commits.map(c => new Date(c.date).getTime())
-          )
+          const aReleases = (a.releases || []).map(r => new Date(r.publishedAt || 0).getTime())
+          const aCommits = (a.commits || []).map(c => new Date(c.date || 0).getTime())
+          const aLatest = aReleases.length > 0 || aCommits.length > 0 ? Math.max(...aReleases, ...aCommits) : 0
+          
+          const bReleases = (b.releases || []).map(r => new Date(r.publishedAt || 0).getTime())
+          const bCommits = (b.commits || []).map(c => new Date(c.date || 0).getTime())
+          const bLatest = bReleases.length > 0 || bCommits.length > 0 ? Math.max(...bReleases, ...bCommits) : 0
+          
           return bLatest - aLatest
         })
 

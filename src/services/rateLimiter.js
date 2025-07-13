@@ -99,7 +99,8 @@ export const validateContent = (content) => {
   })
   
   const maxRepetition = Math.max(...Object.values(wordCount))
-  if (maxRepetition > words.length * 0.3) {
+  // Only flag if a word appears more than 60% of the time AND there are enough words
+  if (maxRepetition > words.length * 0.6 && words.length > 5) {
     issues.push('Content contains excessive repetition')
   }
   

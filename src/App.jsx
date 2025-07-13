@@ -103,7 +103,7 @@ function App() {
       {/* GitHub Updates Widget */}
       <GitHubUpdatesWidget />
       
-      {/* Add Resource Widget */}
+      {/* Resource Widget */}
       <AddResourceWidget />
       
       {/* AI Results Section - Show when AI results are available */}

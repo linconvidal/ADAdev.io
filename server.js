@@ -657,23 +657,50 @@ Keep the response concise and focus on the most relevant tools.`
       ],
       temperature: 0.3,
       max_tokens: 1500
+    }).catch(error => {
+      console.error('OpenAI API error:', error)
+      if (error.code === 'insufficient_quota') {
+        throw new Error('AI service quota exceeded. Please try again later.')
+      } else if (error.code === 'rate_limit_exceeded') {
+        throw new Error('AI service rate limit exceeded. Please try again later.')
+      } else if (error.message.includes('context length')) {
+        throw new Error('Request too complex. Please try a more specific description.')
+      } else {
+        throw new Error('AI service temporarily unavailable. Please try again.')
+      }
     })
 
-    const response = completion.choices[0].message.content
-    const parsedResponse = JSON.parse(response)
+    const response = completion.choices[0]?.message?.content
+    if (!response) {
+      throw new Error('No response from AI service')
+    }
+
+    let parsedResponse
+    try {
+      parsedResponse = JSON.parse(response)
+    } catch (parseError) {
+      console.error('Failed to parse AI response:', parseError)
+      throw new Error('Invalid response format from AI service')
+    }
+
+    // Validate required fields
+    if (!parsedResponse.analysis || !parsedResponse.recommendedTools || !parsedResponse.developmentPlan) {
+      throw new Error('AI response missing required fields')
+    }
 
     // Map recommended tools back to actual resource objects
-    const recommendedResources = parsedResponse.recommendedTools
+    const recommendedResources = (parsedResponse.recommendedTools || [])
       .map(rec => {
+        if (!rec || !rec.resource) return null
         const resource = resources.find(r => r.name === rec.resource)
-        return resource ? { ...resource, reason: rec.reason, priority: rec.priority } : null
+        return resource ? { ...resource, reason: rec.reason || 'Recommended for your use case', priority: rec.priority || 'medium' } : null
       })
       .filter(Boolean)
 
     const result = {
-      analysis: parsedResponse.analysis,
+      analysis: parsedResponse.analysis || 'Analysis not available',
       recommendedResources,
-      developmentPlan: parsedResponse.developmentPlan
+      developmentPlan: parsedResponse.developmentPlan || { overview: 'Development plan not available', approaches: [] }
     }
 
     res.json(result)
@@ -776,14 +803,14 @@ app.post('/api/github/global', async (req, res) => {
     
     // Sort by latest activity
     const sortedData = allData.sort((a, b) => {
-      const aLatest = Math.max(
-        ...a.releases.map(r => new Date(r.publishedAt).getTime()),
-        ...a.commits.map(c => new Date(c.date).getTime())
-      )
-      const bLatest = Math.max(
-        ...b.releases.map(r => new Date(r.publishedAt).getTime()),
-        ...b.commits.map(c => new Date(c.date).getTime())
-      )
+      const aReleases = (a.releases || []).map(r => new Date(r.publishedAt || 0).getTime())
+      const aCommits = (a.commits || []).map(c => new Date(c.date || 0).getTime())
+      const aLatest = aReleases.length > 0 || aCommits.length > 0 ? Math.max(...aReleases, ...aCommits) : 0
+      
+      const bReleases = (b.releases || []).map(r => new Date(r.publishedAt || 0).getTime())
+      const bCommits = (b.commits || []).map(c => new Date(c.date || 0).getTime())
+      const bLatest = bReleases.length > 0 || bCommits.length > 0 ? Math.max(...bReleases, ...bCommits) : 0
+      
       return bLatest - aLatest
     })
     
