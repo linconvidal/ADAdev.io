@@ -14,7 +14,7 @@ export const cardanoResources = {
         x: "https://x.com/aiken_eng"
       },
       docs: "https://aiken-lang.org/installation-instructions",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 2,
@@ -30,21 +30,23 @@ export const cardanoResources = {
         x: "https://x.com/OpShinDev"
       },
       docs: "https://book.opshin.dev/",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 3,
       name: "Helios",
-      logo: "https://www.helios-lang.org/logo.svg",
+      logo: "https://helios-lang.io/img/logo.png",
       description: "A lightweight, browser-based smart contract language for the Cardano ecosystem.",
       fullDescription: "Helios is a lightweight, browser-based smart contract language that compiles to Plutus Core. It's designed for simplicity and security, enabling developers to write and test Cardano smart contracts directly in a JavaScript/TypeScript environment without needing a full development setup.",
       keySolutions: ["JavaScript", "Browser-based", "Lightweight", "Smart contracts"],
-      website: "https://www.helios-lang.org/",
+      website: "https://helios-lang.io/",
       social: {
         github: "https://github.com/Hyperion-BT/helios"
       },
-      docs: "https://docs.helios-lang.org/",
-      category: "Development Tools"
+      docs: "https://helios-lang.io/docs/learn/intro",
+      x: "https://x.com/helios_lang",
+      discord: "https://discord.gg/XTwPrvB25q",
+      category: "Libraries & Languages"
     },
     {
       id: 25,
@@ -58,7 +60,7 @@ export const cardanoResources = {
         github: "https://github.com/meshjs"
       },
       docs: "https://docs.meshjs.dev/",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 26,
@@ -72,7 +74,7 @@ export const cardanoResources = {
         github: "https://github.com/spacebudz/lucid"
       },
       docs: "https://docs.lucid.spacebudz.io/",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 32,
@@ -86,7 +88,7 @@ export const cardanoResources = {
         github: "https://github.com/Emurgo/pycardano"
       },
       docs: "https://pycardano.readthedocs.io/",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 41,
@@ -100,7 +102,7 @@ export const cardanoResources = {
         github: "https://github.com/input-output-hk/marlowe"
       },
       docs: "https://docs.marlowe.iohk.io/",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 51,
@@ -113,7 +115,7 @@ export const cardanoResources = {
       social: {
         github: "https://github.com/Emurgo/cardano-serialization-lib"
       },
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 52,
@@ -127,7 +129,7 @@ export const cardanoResources = {
         github: "https://github.com/butaneprotocol/blaze-cardano"
       },
       docs: "https://docs.blaze.butane.dev/",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 54,
@@ -141,7 +143,7 @@ export const cardanoResources = {
         github: "https://github.com/CardanoSharp"
       },
       docs: "https://cardanosharp.com/",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 55,
@@ -155,7 +157,7 @@ export const cardanoResources = {
         github: "https://github.com/IntersectMBO/cardano-cli"
       },
       docs: "https://github.com/IntersectMBO/cardano-cli#overview-of-the-cardano-cli-repository",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 56,
@@ -169,7 +171,7 @@ export const cardanoResources = {
         github: "https://github.com/CardanoSolutions/kupo"
       },
       docs: "https://github.com/CardanoSolutions/kupo#readme",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 57,
@@ -183,7 +185,7 @@ export const cardanoResources = {
         github: "https://github.com/dotare/cardano-delegation"
       },
       docs: "https://www.npmjs.com/package/@dotare/cardano-delegation",
-      category: "Development Tools"
+      category: "Libraries & Languages"
     },
     {
       id: 60,
@@ -607,26 +609,52 @@ export const cardanoResources = {
     {
       id: 20,
       name: "Masumi Network",
-      logo: "https://www.masumi.network/",
+      logo: "https://c-ipfs-gw.nmkr.io/ipfs/QmaFVZvZZqLMvi7MgpdXgWY7PHndBeowjoTsFkGrPphG4Z",
       description: "Groundbreaking blockchain protocol on Cardano enabling the AI Agent Economy with decentralized infrastructure.",
       fullDescription: "Masumi Network is a groundbreaking protocol on Cardano designed to enable the AI Agent Economy. It provides decentralized infrastructure for AI agent transactions, identity management, and discovery.",
-      keySolutions: ["AI agent transactions", "Decision logging", "Agent identity", "Agent discovery"],
-      website: "https://docs.masumi.network/",
+      keySolutions: ["AI agent transactions", "Agent-to-agent payments", "Decision logging", "Agent identity", "Agent discovery", "AI agent economy", "Decentralized infrastructure", "On-chain decision logging", "Agentic services", "AI marketplace"],
+      website: "https://masumi.network/",
       social: {
-        github: "https://github.com/masumi-network"
+        docs: "https://docs.masumi.network/",
+        marketplace: "https://www.sokosumi.com/",
+        github: "https://github.com/masumi-network",
+        x: "https://x.com/masumi_network",
+        discord: "https://discord.com/invite/aj4QfnTS92",
+        telegram: "https://t.me/masumi_network"
       },
       category: "AI & Machine Learning"
     },
     {
       id: 21,
       name: "Kodosumi",
-      logo: "https://docs.kodosumi.io/logo.svg",
+      logo: "https://c-ipfs-gw.nmkr.io/ipfs/QmVhGs1DhzPCZZ4P1ex5ssePhTDXiCEnFGHcwBVt5kB2e7",
       description: "Runtime environment to manage and execute agentic services at scale using Ray distributed computing framework.",
-      fullDescription: "Kodosumi provides a runtime environment for managing and executing AI agentic services at scale. It leverages the Ray distributed computing framework and is designed with a Python-first approach for seamless integration.",
-      keySolutions: ["Agentic services", "Distributed computing", "Python-first", "Ray framework"],
-      website: "https://docs.kodosumi.io/",
+      fullDescription: "Kodosumi provides a runtime environment for managing and executing AI agentic services at scale. It leverages the Ray distributed computing framework and is designed with a Python-first approach for seamless integration. It is a part of the Masumi Network ecosystem.",
+      keySolutions: ["Agentic services", "Distributed computing", "Python-first", "Ray framework", "AI agentic services", "AI agentic economy", "AI agentic infrastructure", "AI agentic marketplace", "AI agentic identity", "AI agentic discovery"],
+      website: "https://kodosumi.io/",
       social: {
-        github: "https://github.com/masumi-network/kodosumi"
+        docs: "https://docs.kodosumi.io/",
+        github: "https://github.com/masumi-network/kodosumi",
+        x: "https://x.com/masumi_network",
+        discord: "https://discord.com/invite/aj4QfnTS92",
+        telegram: "https://t.me/masumi_network"
+      },
+      category: "AI & Machine Learning"
+    },
+    {
+      id: 22,
+      name: "Sokosumi",
+      logo: "https://c-ipfs-gw.nmkr.io/ipfs/QmUqHkovUfQ4zM9GyVsMFuC1Mps9xeqDMpLMPBtttFyL32",
+      description: "AI-powered research and analysis platform built on the Masumi Network, providing comprehensive tools for all kinds of research.",
+      fullDescription: "Sokosumi is an AI-powered research and analysis platform that leverages the Masumi Network infrastructure. It provides comprehensive tools for various types of research, enabling users to conduct thorough analysis and gather insights using advanced AI capabilities. If you are building an AI agentic service, Sokosumi is where you want to deploy it.",
+      keySolutions: ["AI research tools", "Data analysis", "Research platform", "AI-powered insights", "Masumi Network integration", "Comprehensive research", "AI analysis tools"],
+      website: "https://www.sokosumi.com/",
+      social: {
+        github: "https://github.com/masumi-network",
+        docs: "https://docs.masumi.network/",
+        x: "https://x.com/masumi_network",
+        discord: "https://discord.com/invite/aj4QfnTS92",
+        telegram: "https://t.me/masumi_network"
       },
       category: "AI & Machine Learning"
     }
