@@ -145,7 +145,7 @@ const AddResourceWidget = () => {
         )}
         {/* Expanded State */}
         {isExpanded && (
-          <div className="p-4 max-h-[90vh] overflow-y-auto">
+          <div className="p-4 max-h-[85vh] overflow-y-auto pb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <Plus size={20} className="text-emerald-400" />
@@ -189,8 +189,7 @@ const AddResourceWidget = () => {
               )}
               <input name="customTabTitle" value={form.customTabTitle} onChange={handleChange} placeholder="Custom Tab Title (optional)" className="w-full bg-gray-800 text-white rounded p-2 text-xs" />
               <textarea name="customTabContent" value={form.customTabContent} onChange={handleChange} placeholder="Custom Tab Content (optional)" className="w-full bg-gray-800 text-white rounded p-2 text-xs" />
-              <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 group mt-2">
-                <Github size={16} />
+              <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 group mt-4 mb-2"> <Github size={16} />
                 <span>Create Pull Request</span>
                 <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
               </button>

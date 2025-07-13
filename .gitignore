@@ -98,11 +98,12 @@ jspm_packages/
 
 # Personal documentation and notes
 *.md
-!README.md
-!SECURITY.md
+SECURITY.md
+ANTI_SPAM.md
 
 # Design files
 *.psd
+ADAdev_logo.psd
 *.ai
 *.sketch
 *.fig
