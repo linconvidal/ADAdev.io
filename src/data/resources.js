@@ -507,6 +507,19 @@ export const cardanoResources = {
         github: "https://github.com/BeginWallet"
       },
       category: "Wallets & User Tools"
+    },
+    {
+      id: 62,
+      name: "Tokeo",
+      logo: "https://tokeo.io/wp-content/uploads/2024/11/tokeo-logo-wide-white.png.webp",
+      description: "Multichain smart wallet for Bitcoin and Cardano with live prices, swaps, on/off-ramping, and virtual card features.",
+      fullDescription: "Tokeo is a feature-rich multichain smart wallet that supports Bitcoin and Cardano. It offers live prices, swaps, on/off-ramping, order tracking, invoices, gamification, and an upcoming virtual card system powered by Mastercard. The wallet is self-custodial, giving users full control over their assets.",
+      keySolutions: ["Multichain wallet", "Bitcoin & Cardano", "Live prices", "Swaps", "On/off-ramping", "Virtual card", "Self-custodial"],
+      website: "https://tokeo.io/",
+      social: {
+        x: "https://x.com/tokeo_io"
+      },
+      category: "Wallets & User Tools"
     }
   ],
   "Identity & Authentication": [
