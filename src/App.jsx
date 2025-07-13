@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react'
 
 import Header from './components/Header'
+import BetaBanner from './components/BetaBanner'
 import Hero from './components/Hero'
 import GitHubUpdatesWidget from './components/GitHubUpdatesWidget'
 import AddResourceWidget from './components/AddResourceWidget'
@@ -95,6 +96,7 @@ function App() {
   return (
     <div className="min-h-screen bg-custom-bg">
       <Header />
+      <BetaBanner />
       <Hero 
         onAIAnalysisComplete={handleAIAnalysisComplete}
         onAILoadingChange={handleAILoadingChange}
