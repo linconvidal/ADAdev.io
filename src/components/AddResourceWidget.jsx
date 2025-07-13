@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Plus, ExternalLink, Github, AlertCircle, CheckCircle } from 'lucide-react'
+import { Plus, ExternalLink, Github, AlertCircle, CheckCircle, Copy } from 'lucide-react'
 
 const initialForm = {
   name: '',
@@ -23,6 +23,8 @@ const AddResourceWidget = () => {
   const [form, setForm] = useState(initialForm)
   const [codeSnippet, setCodeSnippet] = useState('')
   const [customCategory, setCustomCategory] = useState('')
+  const [showInstructions, setShowInstructions] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
 
   // Handle click outside to collapse widget
   useEffect(() => {
@@ -70,6 +72,11 @@ const AddResourceWidget = () => {
       .replace(/"/g, '"')
   }
 
+  // Generate PR template
+  const generatePRTemplate = (snippet) => {
+    return `## New Resource Submission\n\nPlease review and copy the code snippet below into resources.js.\n\n\`\`\`javascript\n${snippet}\`\`\`\n\n---\n\n### Guidelines:\n- Ensure the resource is Cardano-related\n- Provide accurate and up-to-date information\n- Key Solutions should be a comma-separated list of keywords that describe the resource\n- Include all available social links\n- Use appropriate category\n- Ensure logo URL is accessible\n\nThank you for contributing to the Cardano developer ecosystem!`
+  }
+
   // Handle form change
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -81,15 +88,19 @@ const AddResourceWidget = () => {
     e.preventDefault()
     const snippet = generateSnippet()
     setCodeSnippet(snippet)
-    handleSubmitPR(snippet)
+    setShowInstructions(true)
   }
 
-  // Open PR with code snippet
-  const handleSubmitPR = (snippet) => {
-    const repoUrl = 'https://github.com/SLFMR1/ADAdev.io'
-    const body = `## New Resource Submission\n\nPlease review and copy the code snippet below into resources.js.\n\n<details>\n<summary>Resource.js Code Snippet</summary>\n\n\  javascript\n${snippet}\n\  \n</details>\n\n---\n\n### Guidelines:\n- Ensure the resource is Cardano-related\n- Provide accurate and up-to-date information\n- Key Solutions should be a comma-separated list of keywords that describe the resource\n- Include all available social links\n- Use appropriate category\n- Ensure logo URL is accessible\n\nThank you for contributing to the Cardano developer ecosystem!`
-    const prUrl = `${repoUrl}/compare/main...main?expand=1&title=Add new resource&body=${encodeURIComponent(body)}`
-    window.open(prUrl, '_blank', 'noopener,noreferrer')
+  // Copy PR template to clipboard
+  const handleCopy = async () => {
+    const prTemplate = generatePRTemplate(codeSnippet)
+    try {
+      await navigator.clipboard.writeText(prTemplate)
+      setCopySuccess(true)
+      setTimeout(() => setCopySuccess(false), 1500)
+    } catch {
+      setCopySuccess(false)
+    }
   }
 
   const categories = [
@@ -191,13 +202,28 @@ const AddResourceWidget = () => {
               <textarea name="customTabContent" value={form.customTabContent} onChange={handleChange} placeholder="Custom Tab Content (optional)" className="w-full bg-gray-800 text-white rounded p-2 text-xs" />
               <button type="submit" className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 group mt-4 mb-2"> <Github size={16} />
                 <span>Create Pull Request</span>
-                <ExternalLink size={14} className="group-hover:translate-x-1 transition-transform duration-200" />
               </button>
             </form>
             {codeSnippet && (
               <div className="mt-4">
-                <div className="text-xs text-gray-400 mb-1">Generated Resource Object:</div>
-                <pre className="bg-gray-900/80 text-gray-200 rounded p-2 text-xs overflow-x-auto"><code>{codeSnippet}</code></pre>
+                <div className="text-xs text-gray-400 mb-1 flex items-center justify-between">
+                  <span>Prefilled PR Template:</span>
+                  <button onClick={handleCopy} title="Copy PR template" className="ml-2 p-1 rounded hover:bg-gray-700">
+                    {copySuccess ? <CheckCircle size={16} className="text-emerald-400" /> : <Copy size={16} />}
+                  </button>
+                </div>
+                <pre className="bg-gray-900/80 text-gray-200 rounded p-2 text-xs overflow-x-auto whitespace-pre-wrap"><code>{generatePRTemplate(codeSnippet)}</code></pre>
+              </div>
+            )}
+            {showInstructions && (
+              <div className="mt-3 text-xs text-gray-300 space-y-1 border-t border-gray-700 pt-3">
+                <div className="font-semibold mb-1">Next steps:</div>
+                <ol className="list-decimal list-inside space-y-0.5">
+                  <li>Fork repo <a href="https://github.com/SLFMR1/ADAdev.io/fork" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline">(link)</a></li>
+                  <li>Add to <span className="font-mono">resources.js</span></li>
+                  <li>Push</li>
+                  <li>Open PR</li>
+                </ol>
               </div>
             )}
           </div>
