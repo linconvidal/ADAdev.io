@@ -806,5 +806,5 @@ export const cardanoResources = {
       social: {},
       category: "Governance & DAOs"
     }
-  ],
-}; 
+  ]
+};
