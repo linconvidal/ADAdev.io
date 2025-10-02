@@ -299,6 +299,35 @@ export const cardanoResources = {
         github: "https://github.com/dcSpark/carp"
       },
       category: "Infrastructure & APIs"
+    },
+    {
+      id: "63",
+      name: "Cardano Rosetta Java",
+      logo: "https://avatars.githubusercontent.com/u/37078161?s=200&v=4",
+      description: "Lightweight Java implementation of the Rosetta API (Mesh) for seamless Cardano blockchain integration",
+      fullDescription: "Cardano Rosetta Java is a production-ready implementation of Coinbase's Rosetta API specification (now Mesh), developed and maintained by the Cardano Foundation. It provides a standardized interface for exchanges, wallets, and other services to integrate with the Cardano blockchain without needing to understand its unique eUTXO model. Built on the efficient Yaci-Store indexer, it offers lower system requirements compared to other solutions while maintaining full compatibility with the Rosetta CLI and supporting all Cardano-specific features including native tokens, staking, and governance operations.",
+      keySolutions: [
+        "blockchain integration",
+        "exchange connectivity",
+        "wallet infrastructure",
+        "API standardization",
+        "eUTXO abstraction",
+        "native token support",
+        "staking operations",
+        "governance voting"
+      ],
+      website: "https://cardano-foundation.github.io/cardano-rosetta-java/",
+      social: {
+        github: "https://github.com/cardano-foundation/cardano-rosetta-java",
+        discord: " https://discord.gg/rrYWYje5BE",
+        x: "https://twitter.com/Cardano_CF"
+      },
+      category: "Infrastructure & APIs",
+      type: "repository",
+      organization: "cardano-foundation",
+      repository: "cardano-rosetta-java",
+      repo_path: "cardano-foundation/cardano-rosetta-java",
+      docs: "https://cardano-foundation.github.io/cardano-rosetta-java/docs/intro"
     }
   ],
   "Minting and NFTs": [
@@ -777,5 +806,5 @@ export const cardanoResources = {
       social: {},
       category: "Governance & DAOs"
     }
-  ]
+  ],
 }; 
